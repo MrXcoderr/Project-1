@@ -1,0 +1,61 @@
+I)Launch an EC2 instance for Docker host
+Install docker on EC2 instance and start services
+---
+&yum install docker => installing docker
+$service docker start => starting service
+---
+
+II)create a new user for Docker management and add him to Docker (default) group
+---
+$useradd dockeradmin => adding new user
+$passwd dockeradmin => adding password
+$usermod -aG docker dockeradmin => adding user to group
+---
+
+III)Enable password based authentication(since we are using jenkins as a deployment tool)
+---
+$vi /etc/ssh/sshd_config => uncomment the password authentication
+---
+
+
+IV)Write a Docker file under /opt/docker
+---
+&mkdir /opt/docker => default directory
+$chown -R dockeradmin:dockeradmin /opt/docker => provide access to the default directory 
+### vi Dockerfile
+# Pull base image 
+From tomcat:8-jre8 
+
+# Maintainer
+MAINTAINER "Abdul Saleem" 
+
+# copy war file on to container 
+COPY ./webapp.war /usr/local/tomcat/webapps
+---
+
+V)Login to Jenkins console and add Docker server to execute commands from Jenkins
+Manage Jenkins --> Configure system --> Publish over SSH --> add Docker server and credentials
+
+VI)Create Jenkins job
+1)Build Root POM: pom.xml
+2)Goals and options : clean install package
+3)post bulid
+send files or execute commands over SSH Name: docker_host
+Source files : webapp/target/*.war
+Remove prefix : webapp/target
+Remote directory : //opt//docker
+Exec command[s] :
+docker stop demoimage;
+docker rm -f demoimage;
+docker image rm -f valaxy_demo;
+cd /opt/docker;
+docker build -t assessment demo .
+4) send files or execute commands over SSH => to create container using the image
+Name: docker_host
+Exec command : docker run -d --name valaxy_demo -p 8090:8080 valaxy_demo
+
+VII)check images and containers again on Docker host. This time an image and container get creates through Jenkins job
+
+Access web application from browser which is running on container
+<docker_host_Public_IP>:8090
+open the same port in security group
