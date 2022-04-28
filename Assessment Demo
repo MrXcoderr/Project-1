@@ -47,12 +47,12 @@ Remote directory : //opt//docker
 Exec command[s] :
 docker stop demoimage;
 docker rm -f demoimage;
-docker image rm -f valaxy_demo;
+docker image rm -f demoimage;
 cd /opt/docker;
-docker build -t assessment demo .
+docker build -t demoimage .
 4) send files or execute commands over SSH => to create container using the image
 Name: docker_host
-Exec command : docker run -d --name valaxy_demo -p 8090:8080 valaxy_demo
+Exec command : docker run -d --name demoimage -p 8090:8080 demoimage
 
 VII)check images and containers again on Docker host. This time an image and container get creates through Jenkins job
 
